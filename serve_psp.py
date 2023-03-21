@@ -1,20 +1,22 @@
 import numpy as np
 import cv2
 import tensorflow as tf
-from src.utils.get_psp import get_psp_model
+from utils.get_psp import get_psp_model
 import uvicorn
 from fastapi import FastAPI,File, UploadFile
 from fastapi.responses import Response
 from starlette.responses import StreamingResponse
 from PIL import Image
 from io import BytesIO
-from src.utils.inference import inference
+from utils.inference import inference
 import matplotlib.pyplot as plt
-
+from dotenv import dotenv_values
+config = dotenv_values(".env")
+print(config)
 s1 = get_psp_model(5,False)
 s2 = get_psp_model(6,False)
-s1_path = r"C:\Users\Avinash\Desktop\New folder\Project\models\psp stage1 720X720.h5"
-s2_path = r"C:\Users\Avinash\Desktop\New folder\Project\models\psp stage2 720X720.h5"
+s1_path = config["STAGE1_PATH"]
+s2_path = config["STAGE2_PATH"]
 
 s1.load_weights(s1_path)
 s2.load_weights(s2_path)
@@ -57,5 +59,5 @@ async def detect(stage:str,img:UploadFile=File(...)):
         img.file.close()
 
 if __name__=="__main__":
-    uvicorn.run(app,host='localhost',port=8080,debug=True)
+    uvicorn.run(app,host=config["HOST"],port=int(config["PORT"]))
 
